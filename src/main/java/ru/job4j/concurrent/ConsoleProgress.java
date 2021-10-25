@@ -6,6 +6,11 @@ public class ConsoleProgress implements Runnable {
     @Override
     public void run() {
         String[] lastSymbol = {"\\", "|", "/"};
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         while (!Thread.currentThread().isInterrupted()) {
             Arrays.stream(lastSymbol).forEach(s -> System.out.print("\r load: ..." + s));
         }
