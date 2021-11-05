@@ -16,7 +16,7 @@ public class SingleLockList<T> implements Iterable<T> {
         this.list = new ArrayList<>();
     }
     public SingleLockList(List<T> list) {
-        this.list = List.copyOf(list);
+        this.list = copy(list);
     }
 
     public synchronized void add(T value) {
@@ -29,6 +29,10 @@ public class SingleLockList<T> implements Iterable<T> {
 
     @Override
     public synchronized Iterator<T> iterator() {
-        return List.copyOf(this.list).iterator();
+        return copy(this.list).iterator();
+    }
+
+    private synchronized List<T> copy(List<T> list) {
+        return List.copyOf(list);
     }
 }
