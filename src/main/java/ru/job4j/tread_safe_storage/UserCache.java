@@ -1,16 +1,16 @@
 package ru.job4j.tread_safe_storage;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
 public class UserCache {
     @GuardedBy("this")
-    private final ConcurrentHashMap<Integer, User> users = new ConcurrentHashMap<>();
+    private final HashMap<Integer, User> users = new HashMap<>();
 
     public synchronized void add(User user) {
-        users.put(user.getId(), user);
+        users.putIfAbsent(user.getId(), user);
     }
 
     public synchronized boolean delete(User user) {
