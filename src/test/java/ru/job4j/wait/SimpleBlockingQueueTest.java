@@ -11,9 +11,21 @@ public class SimpleBlockingQueueTest {
     public void positiveCase() throws InterruptedException {
         AtomicReference<String> x = new AtomicReference<>();
         String element = "text";
-        SimpleBlockingQueue<String> queue = new SimpleBlockingQueue<>();
-        Thread first = new Thread(() -> queue.offer(element));
-        Thread second = new Thread(() -> x.set(queue.poll()));
+        SimpleBlockingQueue<String> queue = new SimpleBlockingQueue<>(10);
+        Thread first = new Thread(() -> {
+            try {
+                queue.offer(element);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        Thread second = new Thread(() -> {
+            try {
+                x.set(queue.poll());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
         first.start();
         second.start();
         first.join();

@@ -8,30 +8,25 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
 
-    private static final int maxCapacity = 10;
-
+    private final int maxCapacity;
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
 
-    public synchronized void offer(T value) {
+    public SimpleBlockingQueue(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    public synchronized void offer(T value) throws InterruptedException {
         while (queue.size() >= maxCapacity) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            this.wait();
         }
         queue.add(value);
         notifyAll();
     }
 
-    public synchronized T poll() {
+    public synchronized T poll() throws InterruptedException {
         while (queue.isEmpty()) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            this.wait();
         }
         T element = queue.poll();
         notifyAll();
