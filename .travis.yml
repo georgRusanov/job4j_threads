@@ -10,5 +10,5 @@ after_success:
 notifications:
   email:
     recipients:
-      - youremail@smtp.ru
+      - rusanovgeorgy@gmail.com
     on_success: never
