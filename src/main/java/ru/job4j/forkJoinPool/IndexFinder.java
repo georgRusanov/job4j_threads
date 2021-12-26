@@ -3,9 +3,14 @@ package ru.job4j.forkJoinPool;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
-public class IndexFinder<T> {
-    private static <T>  int linearSearch(T[] array, T element) {
-        for (int i = 0; i < array.length; i++) {
+public class IndexFinder<T> extends RecursiveTask<Integer> {
+    private final T[] array;
+    private final T element;
+    private final int from;
+    private final int to;
+
+    private static <T>  int linearSearch(T[] array, T element, int from, int to) {
+        for (int i = from; i <= to; i++) {
             if (array[i].equals(element)) {
                 return i;
             }
@@ -14,22 +19,11 @@ public class IndexFinder<T> {
     }
 
     public static <T> int find(T[] array, T element) {
-        if (array.length <= 10) {
-            return linearSearch(array, element);
-        }
         ForkJoinPool forkJoinPool = new ForkJoinPool();
-        return forkJoinPool.invoke(new Task<T>(array, element, 0, array.length - 1));
+        return forkJoinPool.invoke(new IndexFinder<T>(array, element, 0, array.length - 1));
     }
-}
 
-class Task<T> extends RecursiveTask<Integer> {
-
-    private final T[] array;
-    private final T element;
-    private final int from;
-    private final int to;
-
-    Task(T[] array, T element, int from, int to) {
+    IndexFinder(T[] array, T element, int from, int to) {
         this.array = array;
         this.element = element;
         this.from = from;
@@ -38,12 +32,12 @@ class Task<T> extends RecursiveTask<Integer> {
 
     @Override
     protected Integer compute() {
-        if (from == to) {
-            return array[from].equals(element) ? from : -1;
+        if (to - from <= 10) {
+            return linearSearch(array, element, from, to);
         }
         int mid = (from + to) / 2;
-        Task<T> leftTask = new Task<T>(array, element, from, mid);
-        Task<T> rightTask = new Task<T>(array, element, mid + 1, to);
+        IndexFinder<T> leftTask = new IndexFinder<T>(array, element, from, mid);
+        IndexFinder<T> rightTask = new IndexFinder<T>(array, element, mid + 1, to);
         leftTask.fork();
         rightTask.fork();
         int left = leftTask.join();
